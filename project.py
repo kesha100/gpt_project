@@ -22,23 +22,25 @@ openai.api_key=load_api_key()
 
 
 
-def process_csv_and_generate_content(file_path_xlxs):
-    data, name = None, None
+def process_csv_and_generate_content(file_path_xlxs, name):
+   
     try:
         df = pd.read_excel(file_path_xlxs)
-        data = df.iloc[7, :]
-        name = df.iloc[7, 6]
-        basic_info = df.iloc[:, 6:10]
-        major_preferences = df.iloc[:, 14:37]
-        college_preferences= df.iloc[:, 37:49] 
-        potential_major_exploration = df.iloc[:, 49:82]
-        column_AU = df.iloc[:, 46]
+        name_column ='学生拼音/英文姓名（例：Eric Zhang 或者 Runxin Zhang）Student Name (First Name + Last Name)'
+        data = df[df[name_column] == name]
+        basic_info = data.iloc[:, 6:10]
+        major_preferences = data.iloc[:, 14:37]
+        college_preferences= data.iloc[:, 37:49] 
+        potential_major_exploration = data.iloc[:, 49:82]
+        column_AU = data.iloc[:, 46]
+        if data.empty:
+            return None, "person not found"
     except ValueError as e:
         print(f"Error reading the Excel file: {e}")
     return data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU
 
 def generate_gpt(data, name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU):
-    firstpage_summary =(name + "你的角色是一位长者。根据学生提供的问卷（被3个引号括起），重新书写出一段故事性的总结，不要超过500字。请与以下例子中的风格保持一致。“同学你好，在本次测试中，我看到了一位。。。；你是智慧博学的研究员，你有着永不枯竭的好奇心，强大的逻辑和异于常人的洞察力，求知欲更是驱使你站到了探索未知的第一线。理性的你注重逻辑分析，擅长抽象思考，时刻准备找出真理”")
+    firstpage_summary ="你的角色是一位长者。根据学生提供的问卷（被3个引号括起），重新书写出一段故事性的总结，不要超过500字。请与以下例子中的风格保持一致。“同学你好，在本次测试中，我看到了一位。。。；你是智慧博学的研究员，你有着永不枯竭的好奇心，强大的逻辑和异于常人的洞察力，求知欲更是驱使你站到了探索未知的第一线。理性的你注重逻辑分析，擅长抽象思考，时刻准备找出真理”"
     major_prompt_one = "你是一位拥有多年教育经验的顶级留学咨询师，你尤其擅长了解学生的特点并进行基于基础数据的推荐。接下来你的任务是帮助我根据一份高中生的问卷为这位高中生推荐出最适合他的专业，你需要给出详细的理由并在每个中用理由到问卷里的细节信息，你同时需要给出足够的推理过程。在问卷中，学生会对每一个问题或因素进行权重的判断，不同的权重代表了这个因素在专业选择中得重要性(0表示一点都不重要，5表示非常重要)，请结合这些权重的数字给出最终推荐。你的具体任务分为两步。第一步是根据标为原始信息的信息为这位学生推荐10个最适合他的专业并给出理由。第二步是根据标为补充信息的信息从未这位学生推荐的10个最适合他的专业中筛选出3个专业并给出理由和这些专业与他的匹配度。最终结果我希望拥有一个含有10个推荐专业和理由，3个最适合专业和理由文档，每个理由都不能少于300字。当你准备好了，我就把这位学生的信息发给你。"
     major_prompt_two = ("请根据以下问卷信息进行第一步10个专业的推荐，在推荐的过程中请注重学生给出对于每个因素的权重。每个推荐理由不能少于300字"+basic_info+major_preferences)
     major_prompt_three = "请根据以下补充信息继续第二步的3个最匹配专业的筛选。请给出更详细的理由，每个理由都需要要足够多的细节，证据和推理过程。每个理由都不能少于300字。请同时给出专业匹配度（0为最不匹配，100为最匹配）"
@@ -55,13 +57,13 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
         model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0
+            frequency_penalty=0.3,
+            presence_penalty=0.3
         )
         generated_summary=chat_completion.choices[0].message.content
-        print("done_1")
+        print("done1")
     
         
         # generate top major
@@ -69,22 +71,22 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0
+            frequency_penalty=0.3,
+            presence_penalty=0.3
         )
         generated_major_prompt_two = chat_completion.choices[0].message.content
         print("done2")
 
-        gpt_input = f"{generated_major_prompt_two}+name the topic three major in a string with no explantions. i.e Computer Science, Math, Areospace Engineering"
+        gpt_input = f"{generated_major_prompt_two}"
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0
+            frequency_penalty=0.3,
+            presence_penalty=0.3
         )
         major_list = chat_completion.choices[0].message.content
         print("done3")
@@ -103,10 +105,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0
+            frequency_penalty=0.3,
+            presence_penalty=0.3
         )
         generated_major_prompt_three = chat_completion.choices[0].message.content
         print("done4")
@@ -116,10 +118,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
 
         )
         generated_potential_major = chat_completion.choices[0].message.content
@@ -185,10 +187,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
         )
         generated_Correspondence_college_recommendations = chat_completion.choices[0].message.content
 
@@ -197,10 +199,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
         )
         generated_Correspondence_Courses = chat_completion.choices[0].message.content
         print("done6")
@@ -210,10 +212,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
         )
         generated_Major_development_history = chat_completion.choices[0].message.content
         print("done7")
@@ -223,10 +225,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
         )
         generated_Cutting_edge_field = chat_completion.choices[0].message.content
         print("done8")
@@ -236,10 +238,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
         )
         generated_Visualization_p1 = chat_completion.choices[0].message.content
         print("done9")
@@ -249,10 +251,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
         )
         generated_Visualization_p2 = chat_completion.choices[0].message.content
         print("done10")
@@ -262,10 +264,10 @@ def generate_gpt(data, name,basic_info,major_preferences,college_preferences,pot
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.5,
+            temperature=0.8,
             top_p=1.0,
-            frequency_penalty=0.0,
-            presence_penalty=0.0,
+            frequency_penalty=0.3,
+            presence_penalty=0.3,
         )
         generated_Highschool_activities = chat_completion.choices[0].message.content
         print("done11")
@@ -322,12 +324,13 @@ def generate_pdf(generated_content):
 @app.get("/generate_pdf")
 def main():
     file_path_xlsx = '/home/hello/Desktop/form.xlsx'
-    data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU = process_csv_and_generate_content(file_path_xlsx)
+    name = 'Jake Li'
+    data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU = process_csv_and_generate_content(file_path_xlsx,name)
     generated_content = generate_gpt(data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU) 
     pdf_file_path = generate_pdf(generated_content)  
     print(f"PDF generated at {pdf_file_path}")
     try:
-        data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU=process_csv_and_generate_content(file_path_xlsx)
+        data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU=process_csv_and_generate_content(file_path_xlsx,name)
     except ValueError as e :
         print(f"Error:{e}")
 

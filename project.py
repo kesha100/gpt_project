@@ -38,16 +38,15 @@ def process_csv_and_generate_content(file_path_xlxs, name):
         column_AU = data.iloc[:, 46].astype(str)
 
         return data, name, basic_info, major_preferences, college_preferences, potential_major_exploration, column_AU
-
     except ValueError as e:
         print(f"Error reading the Excel file: {e}")
         return None, None, None, None, None, None, None
 
 def generate_gpt(data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU):
-    firstpage_summary = f""" 你的角色是一位长者。根据学生 '''{name}''' 提供的问卷，重新书写出一段故事性的总结，不要超过500字。请与以下例子中的风格保持一致。“同学你好，在本次测试中，我看到了一位...；你是智慧博学的研究员，你有着永不枯竭的好奇心，强大的逻辑和异于常人的洞察力，求知欲更是驱使你站到了探索未知的第一线。理性的你注重逻辑分析，擅长抽象思考，时刻准备找出真理。add this: '''{basic_info}, {major_preferences}, {college_preferences}''' """
-    major_prompt_one = f""" 你是一位拥有多年教育经验的顶级留学咨询师，你尤其擅长了解学生的特点并进行基于基础数据的推荐。接下来你的任务是帮助我根据一份高中生的问卷为这位高中生推荐出最适合他的专业，你需要给出详细的理由并在每个中用理由到问卷里的细节信息，你同时需要给出足够的推理过程。在问卷中，学生会对每一个问题或因素进行权重的判断，不同的权重代表了这个因素在专业选择中得重要性(0表示一点都不重要，5表示非常重要)，请结合这些权重的数字给出最终推荐。你的具体任务分为两步。第一步是根据标为原始信息的信息为这位学生推荐10个最适合他的专业并给出理由。第二步是根据标为补充信息的信息从未这位学生推荐的10个最适合他的专业中筛选出3个专业并给出理由和这些专业与他的匹配度。最终结果我希望拥有一个含有10个推荐专业和理由，3个最适合专业和理由文档，每个理由都不能少于300字。当你准备好了，我就把这位学生的信息发给你。"""
-    major_prompt_two = f""" 请根据以下问卷信息为用户 '''{name}''' 进行第一步10个专业的推荐，在推荐的过程中请注重学生给出对于每个因素的权重。每个推荐理由不能少于300字 '''{basic_info},{major_preferences}''' """
-    major_prompt_three = f""" 请根据以下补充信息为用户 '''{name}''' 继续第二步的3个最匹配专业的筛选。请给出更详细的理由，每个理由都需要要足够多的细节，证据和推理过程。每个理由都不能少于300字。请同时给出专业匹配度（0为最不匹配，100为最匹配）  '''{college_preferences}''' """
+    firstpage_summary = f""" 你的角色是一位长者。根据学生 提供的问卷，重新书写出一段故事性的总结，不要超过500字。请与以下例子中的风格保持一致。“同学你好，在本次测试中，我看到了一位...；你是智慧博学的研究员，你有着永不枯竭的好奇心，强大的逻辑和异于常人的洞察力，求知欲更是驱使你站到了探索未知的第一线。理性的你注重逻辑分析，擅长抽象思考，时刻准备找出真理.use this information and generate on chinese language: '''{name},{basic_info}, {major_preferences}, {college_preferences}''' """
+    major_prompt_one = f""" 你是一位拥有多年教育经验的顶级留学咨询师，你尤其擅长了解学生的特点并进行基于基础数据的推荐。接下来你的任务是帮助我根据一份高中生的问卷为这位高中生推荐出最适合他的专业，你需要给出详细的理由并在每个中用理由到问卷里的细节信息，你同时需要给出足够的推理过程。在问卷中，学生会对每一个问题或因素进行权重的判断，不同的权重代表了这个因素在专业选择中得重要性(0表示一点都不重要，5表示非常重要)，请结合这些权重的数字给出最终推荐。你的具体任务分为两步。第一步是根据标为原始信息的信息为这位学生推荐10个最适合他的专业并给出理由。第二步是根据标为补充信息的信息从未这位学生推荐的10个最适合他的专业中筛选出3个专业并给出理由和这些专业与他的匹配度。最终结果我希望拥有一个含有10个推荐专业和理由，3个最适合专业和理由文档，每个理由都不能少于300字。当你准备好了，我就把这位学生的信息发给你。generate on the chinese language"""
+    major_prompt_two = f""" 请根据以下问卷信息为用户 进行第一步10个专业的推荐，在推荐的过程中请注重学生给出对于每个因素的权重。每个推荐理由不能少于300字.use this information and generate on chinese language: '''{name},{basic_info},{major_preferences}''' """
+    major_prompt_three = f""" 请根据以下补充信息为用户 继续第二步的3个最匹配专业的筛选。请给出更详细的理由，每个理由都需要要足够多的细节，证据和推理过程。每个理由都不能少于300字。请同时给出专业匹配度（0为最不匹配，100为最匹配） .use this information and generate on chinese language:'''{name},{college_preferences}''' """
 
     
     
@@ -104,8 +103,8 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
     8. 快速变化的行业环境：一些专业可能会面临快速变化的行业环境，例如科技或媒体相关的专业，学生需要能够持续学习和更新自己的知识和技能。
     你现在模仿的是大学中的advisor
     请根据上述8个维度分别给出以下三个专业:'''{major_list}'''_的缺点。每个专业的每个维度都需要列出，如果在这个维度上没有明显缺点，请直接说明。
-    请尽量详细和细节化并给出足够的证据和例子。每一点均不要少于3句话。请尝试在描述中加入个人感受，以更感性化的风格写出缺点。请在每一点的理由后均加入详细的例子，并将理由加长并变得更细节"""
-        gpt_input = f"{major_prompt_one}, {major_prompt_three},{data}"
+    请尽量详细和细节化并给出足够的证据和例子。每一点均不要少于3句话。请尝试在描述中加入个人感受，以更感性化的风格写出缺点。请在每一点的理由后均加入详细的例子，并将理由加长并变得更细节.use this information and generate on chinese language:"""
+        gpt_input = f"{major_prompt_one},{major_prompt_three},{data}"
         chat_completion = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": gpt_input}],
@@ -133,20 +132,20 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
 
     #     # more prompt
 
-        Correspondence_college_recommendations = f"""学生希望未来到 '''{column_AU}'''读大学本科，可能专业为" '''{major_list}'''；请你分别为他推荐这几个国家里这三个专业分别最具有代表性的两所大学并给出详细的推荐理由，每个推荐理由不少于300字"""
+        Correspondence_college_recommendations = f"""学生希望未来到 '''{column_AU}'''读大学本科，可能专业为" '''{major_list}'''；请你分别为他推荐这几个国家里这三个专业分别最具有代表性的两所大学并给出详细的推荐理由，每个推荐理由不少于300字.use this information and generate on chinese language:"""
 
-        Correspondence_Courses = f"""假设你给该用户推荐的最适合的三个专业分别是'''{major_list}'''，请分别列出该专业在本科阶段的7个基础课程以及3个进阶课程名称（中英文双语）上面的中英文双语请以如此格式展示：专业名 '''{major_name}'''；课程名(class name)。"""
+        Correspondence_Courses = f"""假设你给该用户推荐的最适合的三个专业分别是'''{major_list}'''，请分别列出该专业在本科阶段的7个基础课程以及3个进阶课程名称（中英文双语）上面的中英文双语请以如此格式展示：专业名 '''{name}'''；课程名(class name)。use this information and generate on chinese language:"""
 
-        Major_development_history = f"""请列出以下三个专业过去50年历史中的5个最重要的转折点及其时间与影响：'''{major_list}'''。每个转折点及其影响的描述不能少于200字"""
+        Major_development_history = f"""请列出以下三个专业过去50年历史中的5个最重要的转折点及其时间与影响：'''{major_list}'''。每个转折点及其影响的描述不能少于200字.use this information and generate on chinese language:"""
 
-        Cutting_edge_field = f"""请分别列出以下三个专业中每个专业在学术界和工业界的最前沿的3个领域：'''{major_list}'''。请详细描述每个领域，每个领域的描述均不能少于200字。"""
+        Cutting_edge_field = f"""请分别列出以下三个专业中每个专业在学术界和工业界的最前沿的3个领域：'''{major_list}'''。请详细描述每个领域，每个领域的描述均不能少于200字。use this information and generate on chinese language:"""
 
         Visualization_p1 = f"""1. 知识掌握程度（Knowledge Mastery）：这个维度可以通过测试或者评估来测量学生对于该学科的核心概念和技能的理解程度。这可能包括学生的课堂表现、作业、项目、测试和考试成绩。 
         2. 热爱程度（Interest Level）：这个维度可以通过调查或者问卷来测量学生对于该学科的兴趣。这可能包括学生选择学习这个学科的频率、在这个学科上投入的时间、以及在这个学科上的自我激励程度。 
         3. 实践应用能力（Practical Application）：这个维度可以通过评估学生对于该学科的实际应用能力。这可能包括学生在实验、项目或者实习中的表现，以及他们如何将学到的知识应用到实际问题中。 
         4. 创新能力（Innovative Capability）：这个维度可以通过观察学生在该学科中的创新表现来测量。这可能包括他们是否能提出新的观点、解决问题的新方法、或者创作新的作品。 
         5. 对未来的投入意愿（Future Commitment）：这个维度可以通过询问学生他们对于在这个学科上投入更多时间和精力的意愿来测量。这可能包括他们对于未来在这个领域内工作或者进一步学习的计划。 
-        请根据以下问卷结果对该学生的’工程学科', '理科学科', '社会科学学科', '社会人文学科‘分别对相应的五个维度进行打分（0-5分）'''{potential_major_exploration}''' """
+        请根据以下问卷结果对该学生的’工程学科', '理科学科', '社会科学学科', '社会人文学科‘分别对相应的五个维度进行打分（0-5分）.use this information and generate on chinese language:'''{potential_major_exploration}''' """
 
         Visualization_p2 = f"""请参考以下括号内段落的格式与内容和问卷信息，为用户+name+的推荐专业 '''{major_list}''' list以及它们所对应的五大维度‘知识掌握程度’，‘热爱程度’，‘实践实用能力‘，‘创新能力‘，‘对未来的投入意愿‘，写一个分析。
         (运动医学： 
@@ -166,7 +165,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         - 实践应用能力：生物科学涉及实践应用能力较高的领域，特别是在运动医学和康复科学等领域。Eva在未来职业偏好中明确表示了希望从事与运动康复相关的工作，这表明她对实践应用能力有较高的需求和意愿。因此，Eva在生物科学领域的实践应用能力可能较高，得分为4。 
         - 创新能力：生物科学领域对于创新能力的要求较高，需要学生能够提出新的观点、解决问题的新方法或进行独立的研究。尽管创新能力在生物科学中并非最为重要的特征，但她在未来职业偏好中表明对从事与运动康复相关的工作有兴趣，这可能需要一定的创新意识。因此，Eva在生物科学领域的创新能力可能较高，得分为3。 
         - 对未来的投入意愿：Eva在未来职业偏好中明确表示了对从事与运动康复相关的领域有兴趣，这表明她对该领域有较高的投入意愿。她的家庭还提供经济支持，这可能为她在学习和实践中提供一定的资源和机会。因此，Eva在生物科学领域的对未来的投入意愿可能较高，得分为4。 
-        综合考虑，根据Eva在不同学科的兴趣和五大维度的评估，推荐专业包括运动医学、康复科学和生物科学。在这些领域，Eva表现出较高的兴趣和匹配程度。她在生物学方面有较好的知识掌握程度和热爱程度，对于实践应用能力和未来投入意愿也表现出较高的需求和意愿。对于创新能力，Eva在这些学科中可能需要进一步培养和锻炼。建议Eva在选择专业时综合考虑自己的兴趣和综合能力，对未来职业规划有明确的认识，以做出最适合自己的决策。）'''{basic_info},{major_preferences+college_preferences}''' """
+        综合考虑，根据Eva在不同学科的兴趣和五大维度的评估，推荐专业包括运动医学、康复科学和生物科学。在这些领域，Eva表现出较高的兴趣和匹配程度。她在生物学方面有较好的知识掌握程度和热爱程度，对于实践应用能力和未来投入意愿也表现出较高的需求和意愿。对于创新能力，Eva在这些学科中可能需要进一步培养和锻炼。建议Eva在选择专业时综合考虑自己的兴趣和综合能力，对未来职业规划有明确的认识，以做出最适合自己的决策。） use this information and generate on chinese language:'''{basic_info},{major_preferences},{college_preferences}''' """
 
         Highschool_activities = f"""1. 运动科学(Kinesiology)：
     一周以内：在一周之内，你可以组织一次校内运动科学小型研讨会。邀请校内的体育爱 好者、健身教练和相关专业的学生参加。你可以邀请一位运动科学领域的教授或专家进 行讲座，探讨热门话题如运动与健康的关系，新兴的运动训练方法等。通过这个独特的 活动，你将展示自己的组织能力、领导力，并为同学们带来有价值的学习机会。
@@ -184,7 +183,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
     一年以内：在一年内，你可以合作开发一个“虚拟康复实验室”。利用虚拟现实技术，创 造一个虚拟环境，模拟各种康复训练场景。用户可以通过VR头盔体验不同类型的运动、 平衡和康复训练，同时在虚拟环境中接受专业指导。这个项目将结合技术和康复实践， 为患者提供创新的康复体验。 
     背景提升规划：除了参与常规的实习和研究活动外，你可以考虑创办一个“社区康复支持 小组”。你可以定期组织康复知识分享会，为社区居民提供康复建议和指导。你还可以与 社区体育俱乐部合作，提供定制的康复训练方案。通过这个支持小组，你将深化对患者 需求的了解，同时提升你的康复咨询和沟通技能 
     你现在的角色是一名资深的大学顾问。 请根据以上段落的风格内容格式，为该高中生规划大学申请的活动。他的目标专业分别为：'''{major_list}'''。 活动规划框架为： 一周以内的活动(参观，讲座），一个月以内的活动（夏校，读书，小型研究，coursera课程），一年以内的活动（科研，实习，志愿者），以及背景提升的规划（主打科研和open-ended project-based learning，现实免费资源和付费资源）
-    请给出更有创造性和独特性的活动规划。每一个活动的细节与信息不能少于300字。"""
+    请给出更有创造性和独特性的活动规划。每一个活动的细节与信息不能少于300字。use this information and generate on chinese language """
 
         # Correspondence_college_recommendations
         gpt_input = f"{Correspondence_college_recommendations}"
@@ -296,48 +295,58 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
 
 
 class PDF(FPDF):
-    def __init__(self):
-        super().__init__()
-        self.add_font('NotoSansCJK', '', '/home/hello/VScode/NotoSansSC-VariableFont_wght.ttf', uni=True)
-        self.set_font('NotoSansCJK', size=12)
+    def header(self):
+        self.set_font('Arial', 'B', 12)
+        self.cell(0, 10, 'GPT Generated Report', 0, 1, 'C')
 
     def footer(self):
         self.set_y(-15)
         self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, 'Page ' + str(self.page_no()), 0, 0, 'C')
+        self.cell(0, 10, f'Page {self.page_no()}', 0, 0, 'C')
 
 def generate_pdf(generated_content):
     try:
         pdf = PDF()
+        pdf.add_font('NotoSansCJK', '', '/home/hello/VScode/NotoSansSC-VariableFont_wght.ttf', uni=True)
+        pdf.set_left_margin(15)
+        pdf.set_right_margin(15)
+        pdf.set_auto_page_break(auto=True, margin=15)
+
         pdf.add_page()
-        pdf.set_font("NotoSansCJK", size=12)
-        effective_page_width = pdf.w - 2*pdf.l_margin
-        content_string = "\n".join([str(item) for item in generated_content])
-        pdf.multi_cell(effective_page_width, 10, content_string)
-        current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
-        pdf_file_name = f"gpt_report_{current_time}.pdf"
+
+        for item in generated_content:
+            if isinstance(item, str):
+                pdf.set_font('NotoSansCJK', '', 12)
+                pdf.multi_cell(0, 10, item)
+            elif isinstance(item, dict):
+                pdf.set_font('NotoSansCJK', 'B', 14)
+                pdf.cell(0, 10, item['title'], ln=True, align='C')
+                pdf.set_font('NotoSansCJK', '', 12)
+                pdf.multi_cell(0, 10, item['content'])
+            pdf.ln(10)
+
+        pdf_file_name = f'gpt_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
         pdf_file_path = f'/home/hello/Desktop/{pdf_file_name}'
+        pdf.set_title('GPT Report')
+        pdf.set_author('Generated by GPT')
         pdf.output(pdf_file_path)
-        print(f"PDF successfully generated at: {pdf_file_path}")
         return pdf_file_path
+
     except Exception as e:
-        print(f"Error generating PDF: {e}")
-        return None
-
-
+        return f"Error generating PDF: {e}"
 
 @app.get("/generate_pdf")
 def main():
     file_path_xlsx = '/home/hello/Desktop/form.xlsx'
     name = 'Jake Li'
-    data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU = process_csv_and_generate_content(file_path_xlsx,name)
-    generated_content = generate_gpt(data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU) 
-    pdf_file_path = generate_pdf(generated_content)  
-    print(f"PDF generated at {pdf_file_path}")
     try:
-        data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU=process_csv_and_generate_content(file_path_xlsx,name)
-    except ValueError as e :
+        data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU = process_csv_and_generate_content(file_path_xlsx,name)
+        generated_content = generate_gpt(data,name,basic_info,major_preferences,college_preferences,potential_major_exploration,column_AU) 
+        pdf_file_path = generate_pdf(generated_content)  
+        print(f"PDF generated at {pdf_file_path}")
+    except Exception as e:
         print(f"Error:{e}")
+        return {"error": str(e)}
 
 @app.on_event("startup")
 async def startup_event():

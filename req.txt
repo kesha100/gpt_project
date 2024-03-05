@@ -1,4 +1,7 @@
 pyyaml
 openai
 pandas
-fpdf
+fpdf2
+fastapi
+texmaker
+texlive-full

@@ -9,8 +9,9 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from datetime import datetime
 
+app = FastAPI(title='gpt-4')
 
-app = FastAPI(title='gpt-4',)
+
 
 # Load OpenAI API key from config file
 def load_api_key():
@@ -46,45 +47,37 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
     firstpage_summary = f""" 你的角色是一位长者。根据学生 提供的问卷，重新书写出一段故事性的总结，不要超过500字。请与以下例子中的风格保持一致。“同学你好，在本次测试中，我看到了一位...；你是智慧博学的研究员，你有着永不枯竭的好奇心，强大的逻辑和异于常人的洞察力，求知欲更是驱使你站到了探索未知的第一线。理性的你注重逻辑分析，擅长抽象思考，时刻准备找出真理.use this information and generate on chinese language: '''{name},{basic_info}, {major_preferences}, {college_preferences}''' """
     major_prompt_one = f""" 你是一位拥有多年教育经验的顶级留学咨询师，你尤其擅长了解学生的特点并进行基于基础数据的推荐。接下来你的任务是帮助我根据一份高中生的问卷为这位高中生推荐出最适合他的专业，你需要给出详细的理由并在每个中用理由到问卷里的细节信息，你同时需要给出足够的推理过程。在问卷中，学生会对每一个问题或因素进行权重的判断，不同的权重代表了这个因素在专业选择中得重要性(0表示一点都不重要，5表示非常重要)，请结合这些权重的数字给出最终推荐。你的具体任务分为两步。第一步是根据标为原始信息的信息为这位学生推荐10个最适合他的专业并给出理由。第二步是根据标为补充信息的信息从未这位学生推荐的10个最适合他的专业中筛选出3个专业并给出理由和这些专业与他的匹配度。最终结果我希望拥有一个含有10个推荐专业和理由，3个最适合专业和理由文档，每个理由都不能少于300字。当你准备好了，我就把这位学生的信息发给你。generate on the chinese language"""
     major_prompt_two = f""" 请根据以下问卷信息为用户 进行第一步10个专业的推荐，在推荐的过程中请注重学生给出对于每个因素的权重。每个推荐理由不能少于300字.use this information and generate on chinese language: '''{name},{basic_info},{major_preferences}''' """
-    major_prompt_three = f""" 请根据以下补充信息为用户 继续第二步的3个最匹配专业的筛选。请给出更详细的理由，每个理由都需要要足够多的细节，证据和推理过程。每个理由都不能少于300字。请同时给出专业匹配度（0为最不匹配，100为最匹配） .use this information and generate on chinese language:'''{name},{college_preferences}''' """
-
-    
-    
-    generated_summary, generated_major_prompt_two, major_list, generated_major_prompt_three, generated_potential_major = "", "", "", "", ""
-    generated_Correspondence_college_recommendations, generated_Correspondence_Courses = "", ""
-    generated_Major_development_history, generated_Cutting_edge_field = "", ""
-    generated_Visualization_p1, generated_Visualization_p2, generated_Highschool_activities = "", "", ""
-
+    major_prompt_three = f""" 请根据以下补充信息（被3个引号括起）继续从上述10个专业中进行第二步的3个最匹配专业的筛选。请给出更详细的理由，每个理由都需要要足够多的细节，证据和推理过程。每个理由都不能少于300字。请同时给出专业匹配度（0为最不匹配，100为最匹配）represent only main 3 majors, without explanation and description :'''{college_preferences}''' """
+   
     try:
         gpt_input = f"{firstpage_summary}"
         chat_completion = openai.chat.completions.create(
-        model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.7,
-            top_p=1.0,
-            frequency_penalty=0.3,
-            presence_penalty=0.0
-        )
+        model="gpt-4",
+        messages=[{"role": "user", "content": gpt_input}],
+        temperature=0.7,
+        top_p=1.0,
+        frequency_penalty=0.3,
+        presence_penalty=0.0
+    )
         generated_summary=chat_completion.choices[0].message.content
         print("done1")
-    
-        
-        # generate top major
+
         gpt_input = f"{major_prompt_one},{major_prompt_two},{data}"
+        # print(gpt_input)
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": gpt_input}],
-            temperature=0.8,
-            top_p=1.0,
-            frequency_penalty=0.3,
-            presence_penalty=0.0
-        )
+        model="gpt-4",
+        messages=[{"role": "user", "content": gpt_input}],
+        temperature=0.7,
+        top_p=1.0,
+        frequency_penalty=0.3,
+        presence_penalty=0.0
+    )
         generated_major_prompt_two = chat_completion.choices[0].message.content
         print("done2")
 
-        gpt_input = f"{generated_major_prompt_two}"
+        gpt_input = f"{major_prompt_three}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -104,9 +97,10 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
     你现在模仿的是大学中的advisor
     请根据上述8个维度分别给出以下三个专业:'''{major_list}'''_的缺点。每个专业的每个维度都需要列出，如果在这个维度上没有明显缺点，请直接说明。
     请尽量详细和细节化并给出足够的证据和例子。每一点均不要少于3句话。请尝试在描述中加入个人感受，以更感性化的风格写出缺点。请在每一点的理由后均加入详细的例子，并将理由加长并变得更细节.use this information and generate on chinese language:"""
+        
         gpt_input = f"{major_prompt_one},{major_prompt_three},{data}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -119,7 +113,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         # potential major
         gpt_input = f"{potential_major}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -185,10 +179,11 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
     你现在的角色是一名资深的大学顾问。 请根据以上段落的风格内容格式，为该高中生规划大学申请的活动。他的目标专业分别为：'''{major_list}'''。 活动规划框架为： 一周以内的活动(参观，讲座），一个月以内的活动（夏校，读书，小型研究，coursera课程），一年以内的活动（科研，实习，志愿者），以及背景提升的规划（主打科研和open-ended project-based learning，现实免费资源和付费资源）
     请给出更有创造性和独特性的活动规划。每一个活动的细节与信息不能少于300字。use this information and generate on chinese language """
 
+
         # Correspondence_college_recommendations
         gpt_input = f"{Correspondence_college_recommendations}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -200,7 +195,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         # Correspondence_Courses
         gpt_input = f"{Correspondence_Courses}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -213,7 +208,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         # Major_development_history
         gpt_input = f"{Major_development_history}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -226,7 +221,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         # Cutting_edge_field
         gpt_input = f"{Cutting_edge_field}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -239,7 +234,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         # Visualization_p1
         gpt_input = f"{Visualization_p1}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -252,7 +247,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         # Visualization_p2
         gpt_input = f"{Visualization_p2}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -265,7 +260,7 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
         # Highschool_activities
         gpt_input = f"{Highschool_activities}"
         chat_completion = openai.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4",
             messages=[{"role": "user", "content": gpt_input}],
             temperature=0.8,
             top_p=1.0,
@@ -296,18 +291,20 @@ def generate_gpt(data,name,basic_info,major_preferences,college_preferences,pote
 
 class PDF(FPDF):
     def header(self):
-        self.set_font('Arial', 'B', 12)
-        self.cell(0, 10, 'GPT Generated Report', 0, 1, 'C')
+        self.set_font('Arial', 'B', 14)
+        self.cell(0, 10, 'Generated Report',border=False,ln=1,align='C')
+        self.ln(10)
 
     def footer(self):
         self.set_y(-15)
-        self.set_font('Arial', 'I', 8)
-        self.cell(0, 10, f'Page {self.page_no()}', 0, 0, 'C')
+        self.set_font('helvetica', 'I', 10)
+        self.cell(0, 10, f'Page {self.page_no()}/{{nb}}',align='C')
 
 def generate_pdf(generated_content):
     try:
-        pdf = PDF()
-        pdf.add_font('NotoSansCJK', '', '/home/hello/VScode/NotoSansSC-VariableFont_wght.ttf', uni=True)
+        pdf = PDF(orientation='P', unit='mm', format='A4')
+        pdf.add_font('NotoSansCJK', '', '/home/hello/VScode/NotoSansSC-VariableFont_wght.ttf')
+        pdf.set_font('NotoSansCJK', '', 14)
         pdf.set_left_margin(15)
         pdf.set_right_margin(15)
         pdf.set_auto_page_break(auto=True, margin=15)
@@ -316,24 +313,28 @@ def generate_pdf(generated_content):
 
         for item in generated_content:
             if isinstance(item, str):
-                pdf.set_font('NotoSansCJK', '', 12)
+                pdf.set_font('NotoSansCJK', '', 14)
                 pdf.multi_cell(0, 10, item)
             elif isinstance(item, dict):
-                pdf.set_font('NotoSansCJK', 'B', 14)
+                pdf.set_font('NotoSansCJK', '', 14)
                 pdf.cell(0, 10, item['title'], ln=True, align='C')
-                pdf.set_font('NotoSansCJK', '', 12)
-                pdf.multi_cell(0, 10, item['content'])
+                pdf.set_font('NotoSansCJK', '', 14)
+                pdf.set_fill_color(0, 0, 0)
+                pdf.multi_cell(60, 10, item['content'], align='C')
             pdf.ln(10)
 
         pdf_file_name = f'gpt_report_{datetime.now().strftime("%Y%m%d_%H%M%S")}.pdf'
         pdf_file_path = f'/home/hello/Desktop/{pdf_file_name}'
-        pdf.set_title('GPT Report')
-        pdf.set_author('Generated by GPT')
+        pdf.set_title('Report')
+        pdf.set_author('Sigma')
         pdf.output(pdf_file_path)
         return pdf_file_path
 
     except Exception as e:
         return f"Error generating PDF: {e}"
+
+
+
 
 @app.get("/generate_pdf")
 def main():

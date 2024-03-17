@@ -58,8 +58,7 @@ with open("config.yaml") as f:
     config_yaml = yaml.load(f, Loader=yaml.FullLoader)
 openai.api_key = config_yaml['api_key']
 
-# client = OpenAI(organization="org-LZh7Pd9DiU5TLakHXo9dHiaH",
-#                 api_key="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")
+
 
 try:
     #summary

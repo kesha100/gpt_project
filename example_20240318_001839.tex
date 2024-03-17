@@ -1,0 +1,201 @@
+\documentclass[12pt]{article}
+\usepackage{graphicx} 
+\usepackage{biblatex} 
+\usepackage{CJKutf8}
+\usepackage[T1]{fontenc}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage[calc]{datetime2}
+\usepackage{fancyhdr}
+\usepackage[printwatermark]{xwatermark}
+\usetikzlibrary{calc}
+\usepackage[top=1in, bottom=1in, left=1in, right=1in]{geometry}
+\usepackage{moresize}
+\newwatermark[pages=2-30,color=blue!15,angle=45,scale=3,xpos=0,ypos=0]{Rapidamic Lab}
+\pagestyle{fancy}
+\fancyhf{}
+\definecolor{darkblue}{RGB}{0,90,146} 
+\fancyhead[L]{\textnormal{\textcolor{black}{素研实验室}}} 
+\fancyhead[R]{\includegraphics[width=0.7cm]{logo.jpg}}
+\usepackage{tcolorbox}%
+\newcommand{\MyTitle}[4][]{%
+\begin{tcolorbox}[width=\textwidth, arc=0mm, auto outer arc,
+   boxrule=-1pt, toprule=5pt, bottomrule=5pt,
+   colframe=suyanblue, colback=white,
+   top=0.5cm, bottom=0.1cm]
+   \end{tcolorbox}
+\end{tcolorbox}%
+}%
+\newcommand{\insertname}{
+    Jake Li
+}
+\newcommand{\customdate}{
+    \the\year年\hspace{0.5em}%
+    \ifnum\month<10 0\fi\the\month月\hspace{0.5em}%
+    \ifnum\day<10 0\fi\the\day日%
+}
+\renewcommand{\headrulewidth}{3pt} 
+\renewcommand{\headrule}{\hbox to\headwidth{\color{darkblue}\leaders\hrule height \headrulewidth\hfill}} 
+\begin{document}
+\thispagestyle{empty} 
+\begin{CJK*}{UTF8}{gbsn}
+\definecolor{darkblue}{RGB}{0, 90, 146}
+
+\noindent\hfill\begin{minipage}{2.0cm} % set logo on the title page
+   \includegraphics[width=\textwidth]{logo_.jpg}\\
+\end{minipage}
+\vspace{-3.7cm}
+
+\noindent\textcolor{darkblue}{\rule{\textwidth}{5pt}} % Increase the thickness of the top line
+
+\vspace{10pt} % Increase vertical space for visual separation
+{\noindent\Large\bfseries\hspace*{0.5cm}ChatIvy专专 业 匹 配 及 探 索 报 告}\\[12pt] % Increase font size and space after the title
+{\noindent\large\bfseries\hspace*{0.5cm}报告收件人: \insertname}\\[10pt] % Increase font size and space after the recipient line
+{\noindent\large\bfseries\hspace*{0.5cm}测 试 日 期 ：\customdate}
+\vspace{10pt} % Increase vertical space before the bottom line
+
+\noindent\textcolor{darkblue}{\rule{\textwidth}{5pt}} % Increase the thickness of the bottom line
+
+
+
+   \begin{center}
+      \centering
+      \includegraphics[width=20cm]{/home/hello/VScode/sigma.jpg}
+   \end{center}
+   \vspace{15mm}
+   \begin{tikzpicture}[remember picture, overlay]
+      % Define colors
+      \definecolor{darkblue}{RGB}{0,90,146} % Color for the stripe
+      \definecolor{darkerblue}{RGB}{0,35,102} % Darker color for the frame
+   
+      % Adjusted frame and stripe positions to move up by 2cm
+      \fill[darkerblue] ($(current page.south west)+(1.9cm,1.4cm + 2cm)$) rectangle ($(current page.south east)+(-1.9cm,2.6cm + 2cm)$);
+      \fill[darkblue] ($(current page.south west)+(2.0cm,1.5cm + 2cm)$) rectangle ($(current page.south east)+(-2.0cm,2.5cm + 2cm)$);
+   
+      % Text on the stripe with increased font size, also moved up by 2cm
+      \node at ($(current page.south)+(0,2cm + 2cm)$) [white, font=\large] {基于您输入的信息生成的可视化词云};
+   \end{tikzpicture}
+
+
+   %generated_summary
+   \newpage
+   \fancyfoot[C]{\thepage}
+   \vspace*{2cm}
+   %generated_summary_%
+   \begin{flushleft}
+   \textit{\textnormal{ChatIvy.}}
+   \end{flushleft}
+   \newpage
+   \hspace{0pt}
+   \vspace{0cm}
+   
+   \begin{flushleft}
+   本次的报告主要由以下部分组成：
+   \begin{itemize} 
+       \item \underline{最佳匹配专业}：根据问卷信息以及权重，为用户推荐最适合的3个专业以及推荐理由与匹配度。报告同时包含3个专业的潜在专业缺点困境，为用户进一步的排除掉不喜欢的专业。
+       \item \underline{专业对应大学推荐}：根据问卷信息，为用户推荐他/他希望就读国家的2个推荐专业最具代表性的大学以供用户参考。
+       \item \underline{推荐专业对应的基础和进阶课程}：列出为用户推荐的3个最匹配的专业在大学中的基础与进阶课程，加深用户对于未来专业会学习到的内容的了解，帮助用户筛选出最终专业。
+       \item \underline{推荐专业历史发展}：介绍为用户推荐的三个专业过去50年发展历史中的重要转折点及其影响意义，扩展了用户对于匹配专业的认识。
+       \item \underline{推荐专业前沿领域}：介绍为用户推荐的三个专业在工业界和学术界的较前沿领域，为用户未来专业领域选择提供帮助。
+       \item \underline{学科兴趣和能力的多维度评估可视化}：根据问卷信息及用户对五大学科细分领域的感兴趣程度，评估用户在推荐的三个最佳匹配专业和学科四大类里基于五大不同维度的匹配度，并进行可视化分析。
+       \item \underline{基于推荐专业的高中活动规划}：根据问卷信息，为用户规划基于3个不同专业发展方向的高中活动，包括一周以内的活动，一个月以内的活动，一年以内的活动以及背景提升规划的活动以供用户参考。
+       \item \underline{其他可选择专业}：列出7个符合用户要求，但匹配度非最高的专业，以供用户额外参考。
+   \end{itemize}
+   \end{flushleft}
+   \hspace{0pt}
+   \vfill
+   
+
+
+   % \bigskip
+   % \bigskip
+   % \vfill
+   % \input{figure_tex/percentile}
+   % \vfill
+
+%generated_major_prompt_two
+   \newpage
+   \subsection*{最佳匹配专业}
+   根据您提供的信息，以下是我们为同学推荐的最适合他的3个专业：
+      
+   \textbf{1.} %generated_major_prompt_two_%
+
+
+%generated_major_prompt_three
+   \newpage
+   \subsection*{潜在的专业困境}\textbf{2.} %generated_major_prompt_three_%
+
+
+
+%generated_potential_major_
+
+   \textbf{3.}
+   %generated_potential_major_%
+
+%major_list_
+%generated_Correspondence_college_recommendations_
+   \newpage
+   \subsection*{专业对应大学推荐}
+   %generated_Correspondence_college_recommendations_%
+   %major_list_%
+
+
+%generated_Correspondence_Courses_
+   \newpage
+   \subsection*{推荐专业对应的基础和进阶课程}
+   %generated_Correspondence_Courses_%
+   % \input{figure_tex/course_table}
+   
+%generated_Major_development_history_
+   \newpage
+   \subsection*{推荐专业发展历史}
+   以下信息介绍了为推荐的3个专业在近50年的重要转折点及其影响：
+   %generated_Major_development_history_%
+
+%generated_Cutting_edge_field_
+   \newpage
+   \subsection*{推荐专业前沿领域}
+   以下信息介绍了为推荐的3个专业分别在学术界和工业界中的较前沿的领域：
+   %generated_Cutting_edge_field_%
+
+%generated_Visualization_p1_
+   \newpage
+   \subsection*{学生学科兴趣和能力的多维度评估可视化}
+   I'm sorry, but the information provided in the question does not seem to be related to the given data. If you have any specific questions or need assistance with analyzing the data provided in the table, please let me know how I can help.
+   % \input{figure_tex/radar_plot}
+   % 释：上图展示了\username同学在我们推荐的三个最佳匹配专业和学科四大类里基于不同领域的五大关键特征的可视化分析。不同领域的五大关键特征分别为学生在该领域的知识掌握度，学生对该领域的热爱程度，学生对该领域学习内容的实用与应用能力，学生在该领域的创新能力，以及学生未来在该领域愿意投入的意愿。我们将可视化图片分成了五个维度，从一至五，每条彩色的线与数字的交叉点代表了学生在该专业或领域里的关键特征得分。分数越高，代表学生在学习该专业或领域时会与其五大特征匹配。
+   
+   
+   
+%generated_Visualization_p2_
+   \subsection*{基于推荐专业的高中活动规划}
+   根据您提供的信息，我们为同学提规划了基于3个不同专业发展方向的高中活动，可以供您参考：
+   %generated_Visualization_p2_%
+   
+   
+   
+ %generated_Highschool_activities_ 
+   \newpage
+   \hspace{0pt}
+   \vspace{0cm}
+   \subsection*{其他可选择专业}
+   根据您提供的信息，我们为同学提供了其他较符合您要求的专业，可以供您参考：
+   %generated_Highschool_activities_%
+
+   \bigskip
+   \bigskip
+   \bigskip
+   \noindent本报告基于大语言模型（LLM）收集和分析数据，旨在为学生未来的专业选择提供参考和启示。请注意，这些建议并非绝对，而是数据分析的结果。我们希望这些信息能在申请阶段为您提供帮助，但也请您审慎对待。
+
+   \bigskip 
+   \noindent感谢您的参与和支持！
+
+   \noindent此致，
+
+   \noindent\textbf{ChatIvy团队}
+
+\printbibliography
+\clearpage\end{CJK*}
+\end{document}

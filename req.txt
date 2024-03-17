@@ -5,3 +5,5 @@ fpdf2
 fastapi
 texmaker
 texlive-full
+sqlalchemy 
+psycopg2-binary
